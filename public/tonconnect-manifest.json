@@ -1,7 +1,7 @@
 {
-  "url": "http://localhost:3000",
+  "url": "https://ton-dev.vercel.app",
   "name": "ForkTON.dev",
-  "iconUrl": "http://localhost:3000/placeholder-logo.png",
-  "termsOfUseUrl": "http://localhost:3000/terms",
-  "privacyPolicyUrl": "http://localhost:3000/privacy"
+  "iconUrl": "https://ton-dev.vercel.app/placeholder-logo.png",
+  "termsOfUseUrl": "https://ton-dev.vercel.app/terms",
+  "privacyPolicyUrl": "https://ton-dev.vercel.app/privacy"
 } 

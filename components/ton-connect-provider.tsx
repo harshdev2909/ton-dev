@@ -7,7 +7,7 @@ const manifestUrl = typeof window !== 'undefined' ? `${window.location.origin}/t
 
 export function TonConnectProvider({ children }: { children: ReactNode }) {
   return (
-    <TonConnectUIProvider manifestUrl="http://localhost:3000/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl="https://ton-dev.vercel.app/tonconnect-manifest.json">
       {children}
     </TonConnectUIProvider>
   )

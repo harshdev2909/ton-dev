@@ -1,0 +1,201 @@
+{
+  "database": {
+    "tables": [
+      {
+        "name": "users",
+        "columns": [
+          { "name": "id", "type": "uuid", "primary": true, "default": "uuid_generate_v4()" },
+          { "name": "github_username", "type": "text", "unique": true, "required": true },
+          { "name": "wallet_address", "type": "text", "unique": true },
+          { "name": "xp", "type": "integer", "default": 0 },
+          { "name": "streak", "type": "integer", "default": 0 },
+          { "name": "joined_at", "type": "timestamptz", "default": "now()" },
+          { "name": "avatar_url", "type": "text" },
+          { "name": "last_active", "type": "timestamptz", "default": "now()" }
+        ],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            {
+              "name": "Users can view their own profile",
+              "operation": "SELECT",
+              "check": "auth.uid()::text = id::text"
+            },
+            {
+              "name": "Users can update their own profile",
+              "operation": "UPDATE",
+              "check": "auth.uid()::text = id::text"
+            }
+          ]
+        }
+      },
+      {
+        "name": "quests",
+        "columns": [
+          { "name": "id", "type": "uuid", "primary": true, "default": "uuid_generate_v4()" },
+          { "name": "title", "type": "text", "required": true },
+          { "name": "description", "type": "text", "required": true },
+          { "name": "reward_xp", "type": "integer", "required": true },
+          { "name": "reward_type", "type": "reward_type", "default": "xp_only" },
+          { "name": "nft_slug", "type": "text" },
+          { "name": "proof_type", "type": "proof_type", "default": "manual_input" },
+          { "name": "category", "type": "text", "default": "general" },
+          { "name": "difficulty", "type": "text", "default": "beginner" },
+          { "name": "is_active", "type": "boolean", "default": true },
+          { "name": "created_at", "type": "timestamptz", "default": "now()" }
+        ],
+        "rls": {
+          "enabled": false
+        }
+      },
+      {
+        "name": "quest_submissions",
+        "columns": [
+          { "name": "id", "type": "uuid", "primary": true, "default": "uuid_generate_v4()" },
+          { "name": "user_id", "type": "uuid", "references": "users(id)", "required": true },
+          { "name": "quest_id", "type": "uuid", "references": "quests(id)", "required": true },
+          { "name": "proof", "type": "text", "required": true },
+          { "name": "status", "type": "submission_status", "default": "pending" },
+          { "name": "submitted_at", "type": "timestamptz", "default": "now()" },
+          { "name": "reviewed_at", "type": "timestamptz" },
+          { "name": "reviewer_notes", "type": "text" }
+        ],
+        "constraints": [{ "type": "unique", "columns": ["user_id", "quest_id"] }],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            {
+              "name": "Users can view their own submissions",
+              "operation": "SELECT",
+              "check": "user_id::text = auth.uid()::text"
+            },
+            {
+              "name": "Users can insert their own submissions",
+              "operation": "INSERT",
+              "check": "user_id::text = auth.uid()::text"
+            }
+          ]
+        }
+      },
+      {
+        "name": "gifts",
+        "columns": [
+          { "name": "id", "type": "uuid", "primary": true, "default": "uuid_generate_v4()" },
+          { "name": "sender_id", "type": "uuid", "references": "users(id)", "required": true },
+          { "name": "receiver_id", "type": "uuid", "references": "users(id)", "required": true },
+          { "name": "gift_type", "type": "gift_type", "required": true },
+          { "name": "amount", "type": "numeric(20,9)" },
+          { "name": "nft_slug", "type": "text" },
+          { "name": "message", "type": "text" },
+          { "name": "tx_hash", "type": "text" },
+          { "name": "status", "type": "text", "default": "pending" },
+          { "name": "created_at", "type": "timestamptz", "default": "now()" }
+        ],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            {
+              "name": "Users can view gifts they sent or received",
+              "operation": "SELECT",
+              "check": "sender_id::text = auth.uid()::text OR receiver_id::text = auth.uid()::text"
+            },
+            {
+              "name": "Users can send gifts",
+              "operation": "INSERT",
+              "check": "sender_id::text = auth.uid()::text"
+            }
+          ]
+        }
+      },
+      {
+        "name": "nft_mints",
+        "columns": [
+          { "name": "id", "type": "uuid", "primary": true, "default": "uuid_generate_v4()" },
+          { "name": "user_id", "type": "uuid", "references": "users(id)", "required": true },
+          { "name": "quest_id", "type": "uuid", "references": "quests(id)" },
+          { "name": "nft_slug", "type": "text", "required": true },
+          { "name": "tx_hash", "type": "text" },
+          { "name": "metadata", "type": "jsonb" },
+          { "name": "minted_at", "type": "timestamptz", "default": "now()" }
+        ],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            {
+              "name": "Users can view their own NFTs",
+              "operation": "SELECT",
+              "check": "user_id::text = auth.uid()::text"
+            },
+            {
+              "name": "Anyone can view NFT collection data",
+              "operation": "SELECT",
+              "check": "true"
+            }
+          ]
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "get_user_profile",
+        "parameters": ["username TEXT"],
+        "returns": "TABLE",
+        "description": "Get complete user profile with stats"
+      },
+      {
+        "name": "get_user_quests",
+        "parameters": ["user_uuid UUID"],
+        "returns": "TABLE",
+        "description": "Get all quests with user's submission status"
+      },
+      {
+        "name": "submit_quest_proof",
+        "parameters": ["user_uuid UUID", "quest_uuid UUID", "proof_text TEXT"],
+        "returns": "UUID",
+        "description": "Submit quest completion proof"
+      },
+      {
+        "name": "get_leaderboard",
+        "parameters": ["limit_count INTEGER DEFAULT 10"],
+        "returns": "TABLE",
+        "description": "Get top users by XP with stats"
+      },
+      {
+        "name": "get_user_gifts",
+        "parameters": ["user_uuid UUID"],
+        "returns": "TABLE",
+        "description": "Get all gifts sent/received by user"
+      },
+      {
+        "name": "mint_nft_badge",
+        "parameters": ["user_uuid UUID", "quest_uuid UUID", "nft_slug_param TEXT", "tx_hash_param TEXT"],
+        "returns": "UUID",
+        "description": "Mint NFT badge for quest completion"
+      }
+    ]
+  },
+  "auth": {
+    "providers": ["github"],
+    "settings": {
+      "enable_signup": true,
+      "enable_email_confirmations": false,
+      "jwt_expiry": 3600
+    }
+  },
+  "storage": {
+    "buckets": [
+      {
+        "name": "avatars",
+        "public": true,
+        "file_size_limit": 1048576,
+        "allowed_mime_types": ["image/jpeg", "image/png", "image/webp"]
+      },
+      {
+        "name": "nft-metadata",
+        "public": true,
+        "file_size_limit": 10485760,
+        "allowed_mime_types": ["application/json", "image/jpeg", "image/png"]
+      }
+    ]
+  }
+}

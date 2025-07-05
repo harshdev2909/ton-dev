@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom TON Connect Button Styles */
+.ton-connect-button-outline {
+  @apply border-slate-700 bg-transparent hover:bg-slate-800 text-white;
+}
+
+.ton-connect-button-outline.ton-connect-button-sm {
+  @apply text-xs md:text-sm;
+}
+
+.ton-connect-button-outline.ton-connect-button-lg {
+  @apply text-base md:text-lg;
+}
+
+/* Glass card effect */
+.glass-card {
+  @apply bg-slate-900/50 border border-slate-800/50 backdrop-blur-sm;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent;
+}
+
+/* Glow effects */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+.hover\:glow-blue:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.hover\:glow-cyan:hover {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+body {
+  background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(6, 182, 212, 0.1) 0%, transparent 50%), #0f172a;
+}
+
+/* Ensure sidebar stays fixed and doesn't interfere with main content */
+[data-sidebar="sidebar"] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 40;
+}
+
+/* Ensure main content has proper spacing */
+main {
+  margin-left: var(--sidebar-width, 16rem);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  main {
+    margin-left: 0;
+  }
+
+  [data-sidebar="sidebar"] {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  [data-sidebar="sidebar"][data-state="open"] {
+    transform: translateX(0);
+  }
+}
+
+/* Prevent horizontal scroll */
+html,
+body {
+  overflow-x: hidden;
+}
+
+.tc-connect-button, .ton-connect-button, .TonConnectButton, [class*="TonConnectButton"] {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+  position: relative !important;
+}
+
+/* This is NOT recommended for production, but will remove the blue outline */
+.tc-connect-button:focus, .tc-connect-button:hover,
+.ton-connect-button:focus, .ton-connect-button:hover,
+.TonConnectButton:focus, .TonConnectButton:hover,
+[class*="TonConnectButton"]:focus, [class*="TonConnectButton"]:hover {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
